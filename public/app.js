@@ -438,7 +438,11 @@ function showContextMenu(e, msg) {
     const editItem = contextMenu.querySelector('[data-action="edit"]');
     const deleteAllItem = contextMenu.querySelector('[data-action="delete-all"]');
 
-    if (msg.user_id === user.id) {
+    // Приводим к числу для правильного сравнения
+    const messageUserId = parseInt(msg.userId || msg.user_id);
+    const currentUserId = parseInt(user.id);
+
+    if (messageUserId === currentUserId) {
         editItem.style.display = 'flex';
         deleteAllItem.style.display = 'flex';
     } else {
@@ -446,9 +450,41 @@ function showContextMenu(e, msg) {
         deleteAllItem.style.display = 'none';
     }
 
-    contextMenu.style.left = e.pageX + 'px';
-    contextMenu.style.top = e.pageY + 'px';
+    // Показываем меню чтобы получить его размеры
     contextMenu.classList.add('show');
+
+    // Получаем размеры меню и окна
+    const menuWidth = contextMenu.offsetWidth;
+    const menuHeight = contextMenu.offsetHeight;
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    // Вычисляем позицию
+    let left = e.pageX;
+    let top = e.pageY;
+
+    // Проверяем правую границу
+    if (left + menuWidth > windowWidth) {
+        left = windowWidth - menuWidth - 10;
+    }
+
+    // Проверяем нижнюю границу
+    if (top + menuHeight > windowHeight) {
+        top = windowHeight - menuHeight - 10;
+    }
+
+    // Проверяем левую границу
+    if (left < 0) {
+        left = 10;
+    }
+
+    // Проверяем верхнюю границу
+    if (top < 0) {
+        top = 10;
+    }
+
+    contextMenu.style.left = left + 'px';
+    contextMenu.style.top = top + 'px';
 }
 
 function hideContextMenu() {
