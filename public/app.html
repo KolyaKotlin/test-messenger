@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messenger</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="app-page">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div class="avatar">
+                        <i class="fas fa-user"></i>
+                        <span class="status-indicator online"></span>
+                    </div>
+                    <div class="user-info">
+                        <h3 id="currentUsername">Username</h3>
+                        <p class="status-text">В сети</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" id="createChatBtn" title="Новый чат">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="icon-btn" id="settingsBtn" title="Настройки">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button class="icon-btn" id="logoutBtn" title="Выйти">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchChats" placeholder="Поиск чатов...">
+            </div>
+
+            <div class="chats-list" id="chatsList">
+                <!-- Chats will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-comments"></i>
+                <h2>Выберите чат</h2>
+                <p>Выберите существующий чат или создайте новый</p>
+            </div>
+
+            <div class="chat-container" id="chatContainer" style="display: none;">
+                <div class="chat-header">
+                    <div class="chat-info">
+                        <div class="avatar">
+                            <i class="fas fa-user"></i>
+                            <span class="status-indicator" id="chatStatus"></span>
+                        </div>
+                        <div>
+                            <h3 id="chatName">Chat Name</h3>
+                            <p class="typing-indicator" id="typingIndicator"></p>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="icon-btn" id="voiceCallBtn" title="Голосовой звонок">
+                            <i class="fas fa-phone"></i>
+                        </button>
+                        <button class="icon-btn" id="videoCallBtn" title="Видео звонок">
+                            <i class="fas fa-video"></i>
+                        </button>
+                        <button class="icon-btn" id="chatInfoBtn" title="Информация">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Messages will be loaded here -->
+                </div>
+
+                <div class="message-input-container">
+                    <button class="icon-btn" id="attachBtn">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <div class="input-wrapper">
+                        <textarea id="messageInput" placeholder="Введите сообщение..." rows="1"></textarea>
+                    </div>
+                    <button class="icon-btn" id="emojiBtn">
+                        <i class="fas fa-smile"></i>
+                    </button>
+                    <button class="send-btn" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Chat Modal -->
+    <div class="modal" id="createChatModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Новый чат</h2>
+                <button class="close-btn" id="closeChatModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="tabs">
+                    <button class="tab active" data-tab="private">Личный чат</button>
+                    <button class="tab" data-tab="group">Групповой чат</button>
+                </div>
+
+                <div class="tab-content active" data-content="private">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchUsers" placeholder="Поиск пользователей...">
+                    </div>
+                    <div class="users-list" id="usersList">
+                        <!-- Users will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="tab-content" data-content="group">
+                    <div class="input-group">
+                        <i class="fas fa-users"></i>
+                        <input type="text" id="groupName" placeholder="Название группы">
+                    </div>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchGroupUsers" placeholder="Добавить участников...">
+                    </div>
+                    <div class="selected-users" id="selectedUsers"></div>
+                    <div class="users-list" id="groupUsersList"></div>
+                    <button class="btn btn-primary" id="createGroupBtn">
+                        <i class="fas fa-check"></i>
+                        Создать группу
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-item" data-action="reply">
+            <i class="fas fa-reply"></i>
+            <span>Ответить</span>
+        </div>
+        <div class="context-item" data-action="edit">
+            <i class="fas fa-edit"></i>
+            <span>Редактировать</span>
+        </div>
+        <div class="context-item" data-action="copy">
+            <i class="fas fa-copy"></i>
+            <span>Копировать</span>
+        </div>
+        <div class="context-item" data-action="select">
+            <i class="fas fa-check-square"></i>
+            <span>Выбрать</span>
+        </div>
+        <div class="context-divider"></div>
+        <div class="context-item" data-action="delete-me">
+            <i class="fas fa-trash"></i>
+            <span>Удалить у меня</span>
+        </div>
+        <div class="context-item danger" data-action="delete-all">
+            <i class="fas fa-trash-alt"></i>
+            <span>Удалить у всех</span>
+        </div>
+    </div>
+
+    <!-- Call Modal -->
+    <div class="modal call-modal" id="callModal">
+        <div class="modal-content call-content">
+            <div class="call-info">
+                <div class="caller-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h2 id="callerName">Username</h2>
+                <p class="call-status" id="callStatus">Входящий звонок...</p>
+            </div>
+
+            <video id="remoteVideo" autoplay playsinline></video>
+            <video id="localVideo" autoplay playsinline muted></video>
+
+            <div class="call-controls">
+                <button class="call-btn mute-btn" id="muteBtn">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="call-btn camera-btn" id="cameraBtn">
+                    <i class="fas fa-video"></i>
+                </button>
+                <button class="call-btn end-btn" id="endCallBtn">
+                    <i class="fas fa-phone-slash"></i>
+                </button>
+            </div>
+
+            <div class="incoming-call-actions" id="incomingCallActions" style="display: none;">
+                <button class="call-btn accept-btn" id="acceptCallBtn">
+                    <i class="fas fa-phone"></i>
+                </button>
+                <button class="call-btn end-btn" id="rejectCallBtn">
+                    <i class="fas fa-phone-slash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio elements -->
+    <audio id="notificationSound" preload="auto">
+        <source src="notification.wav" type="audio/wav">
+    </audio>
+    <audio id="ringtoneSound" loop preload="auto">
+        <source src="ringtone.wav" type="audio/wav">
+    </audio>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

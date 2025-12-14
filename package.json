@@ -1,0 +1,33 @@
+{
+  "name": "messenger",
+  "version": "1.0.0",
+  "description": "Modern web messenger with chat, voice/video calls",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "messenger",
+    "chat",
+    "websocket",
+    "webrtc",
+    "video-calls"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.5.4",
+    "pg": "^8.11.0",
+    "bcrypt": "^5.1.0",
+    "jsonwebtoken": "^9.0.0",
+    "nodemailer": "^6.9.0",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
