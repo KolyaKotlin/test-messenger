@@ -99,11 +99,15 @@ function connectSocket() {
     });
 
     socket.on('message', (data) => {
+        // Приводим ID к числу для корректного сравнения
+        const messageUserId = parseInt(data.userId);
+        const currentUserId = parseInt(user.id);
+
         if (data.chatId === currentChatId) {
             displayMessage(data);
             scrollToBottom();
-        } else {
-            // Unread message
+        } else if (messageUserId !== currentUserId) {
+            // Unread message (только если не от меня!)
             if (!unreadMessages[data.chatId]) {
                 unreadMessages[data.chatId] = 0;
             }
@@ -347,9 +351,14 @@ async function loadMessages(chatId) {
 
 function displayMessage(msg) {
     const div = document.createElement('div');
-    div.className = `message ${msg.user_id === user.id ? 'own' : ''}`;
+    // Приводим ID к числу для корректного сравнения
+    const messageUserId = parseInt(msg.userId || msg.user_id);
+    const currentUserId = parseInt(user.id);
+    const isOwn = messageUserId === currentUserId;
+
+    div.className = `message ${isOwn ? 'own' : ''}`;
     div.dataset.messageId = msg.id;
-    div.dataset.userId = msg.user_id;
+    div.dataset.userId = messageUserId;
 
     const time = formatTime(msg.timestamp);
 
@@ -358,7 +367,7 @@ function displayMessage(msg) {
             <i class="fas fa-user"></i>
         </div>
         <div class="message-content">
-            ${msg.user_id !== user.id ? `<div class="message-author">${msg.username}</div>` : ''}
+            ${!isOwn ? `<div class="message-author">${msg.username}</div>` : ''}
             <div class="message-bubble">
                 <div class="message-text">${escapeHtml(msg.text)}</div>
             </div>
@@ -686,7 +695,7 @@ async function initiateCall(isVideo) {
     incomingCallActions.style.display = 'none';
     document.querySelector('.call-controls').style.display = 'flex';
 
-    playRingtone();
+    // НЕ играем рингтон у звонящего! Только у принимающего
 
     try {
         localStream = await navigator.mediaDevices.getUserMedia({
@@ -704,16 +713,34 @@ async function initiateCall(isVideo) {
         });
 
         peerConnection.ontrack = (event) => {
+            console.log('📹 Received remote stream');
             remoteVideo.srcObject = event.streams[0];
+            stopRingtone();
+            callStatus.textContent = 'В разговоре';
         };
 
         peerConnection.onicecandidate = (event) => {
             if (event.candidate) {
+                console.log('🧊 Sending ICE candidate');
                 socket.emit('ice_candidate', {
                     targetUserId: currentCallUser,
                     candidate: event.candidate
                 });
             }
+        };
+
+        peerConnection.onconnectionstatechange = () => {
+            console.log('🔗 Connection state:', peerConnection.connectionState);
+            if (peerConnection.connectionState === 'connected') {
+                callStatus.textContent = 'В разговоре';
+            } else if (peerConnection.connectionState === 'failed') {
+                alert('Ошибка соединения');
+                endCall();
+            }
+        };
+
+        peerConnection.oniceconnectionstatechange = () => {
+            console.log('❄️ ICE connection state:', peerConnection.iceConnectionState);
         };
 
         const offer = await peerConnection.createOffer();
@@ -752,12 +779,14 @@ async function acceptCall() {
         });
 
         peerConnection.ontrack = (event) => {
+            console.log('📹 Received remote stream');
             remoteVideo.srcObject = event.streams[0];
             callStatus.textContent = 'В разговоре';
         };
 
         peerConnection.onicecandidate = (event) => {
             if (event.candidate) {
+                console.log('🧊 Sending ICE candidate');
                 socket.emit('ice_candidate', {
                     targetUserId: currentCallUser,
                     candidate: event.candidate
@@ -765,6 +794,21 @@ async function acceptCall() {
             }
         };
 
+        peerConnection.onconnectionstatechange = () => {
+            console.log('🔗 Connection state:', peerConnection.connectionState);
+            if (peerConnection.connectionState === 'connected') {
+                callStatus.textContent = 'В разговоре';
+            } else if (peerConnection.connectionState === 'failed') {
+                alert('Ошибка соединения');
+                endCall();
+            }
+        };
+
+        peerConnection.oniceconnectionstatechange = () => {
+            console.log('❄️ ICE connection state:', peerConnection.iceConnectionState);
+        };
+
+        console.log('📞 Setting remote description (offer)');
         await peerConnection.setRemoteDescription(new RTCSessionDescription(window.incomingOffer));
 
         const answer = await peerConnection.createAnswer();

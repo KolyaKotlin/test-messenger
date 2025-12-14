@@ -224,17 +224,17 @@ body {
 
 .input-group i {
     position: absolute;
-    left: 15px;
+    left: 18px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-secondary);
-    font-size: 18px;
+    font-size: 16px;
     z-index: 1;
 }
 
 .input-group input {
     width: 100%;
-    padding: 15px 50px 15px 50px;
+    padding: 15px 45px 15px 48px;
     background: var(--bg-tertiary);
     border: 2px solid var(--border-color);
     border-radius: 12px;
@@ -250,10 +250,10 @@ body {
 }
 
 .toggle-password {
-    left: auto;
-    right: 15px;
+    left: auto !important;
+    right: 18px !important;
     cursor: pointer;
-    z-index: 2;
+    z-index: 10;
 }
 
 .toggle-password:hover {
