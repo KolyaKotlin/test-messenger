@@ -234,7 +234,7 @@ body {
 
 .input-group input {
     width: 100%;
-    padding: 15px 15px 15px 50px;
+    padding: 15px 50px 15px 50px;
     background: var(--bg-tertiary);
     border: 2px solid var(--border-color);
     border-radius: 12px;

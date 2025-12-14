@@ -1,5 +1,5 @@
-const API_URL = 'http://localhost:3000';
-const SOCKET_URL = 'http://localhost:3000';
+const API_URL = 'http://31.57.109.22';
+const SOCKET_URL = 'http://31.57.109.22';
 
 // Check authentication
 const token = localStorage.getItem('token');
