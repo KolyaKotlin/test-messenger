@@ -553,6 +553,7 @@ body {
 .chat-item-info {
     flex: 1;
     min-width: 0;
+    padding-right: 35px; /* Место для badge */
 }
 
 .chat-item-header {
@@ -560,16 +561,23 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 5px;
+    padding-right: 0;
 }
 
 .chat-item-name {
     font-weight: 600;
     font-size: 16px;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .chat-item-time {
     color: var(--text-secondary);
     font-size: 12px;
+    flex-shrink: 0;
+    margin-left: 10px;
 }
 
 .chat-item-message {
@@ -582,8 +590,9 @@ body {
 
 .unread-badge {
     position: absolute;
-    top: 15px;
+    top: 50%;
     right: 15px;
+    transform: translateY(-50%);
     background: var(--primary-color);
     color: white;
     border-radius: 12px;
@@ -592,6 +601,7 @@ body {
     font-weight: 600;
     min-width: 20px;
     text-align: center;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
 }
 
 /* ========== CHAT AREA ========== */
