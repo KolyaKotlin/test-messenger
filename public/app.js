@@ -498,11 +498,17 @@ contextMenu.querySelectorAll('.context-item').forEach(item => {
         const action = item.dataset.action;
 
         switch (action) {
+            case 'reply':
+                replyMessage(currentContextMessage);
+                break;
             case 'edit':
                 editMessage(currentContextMessage);
                 break;
             case 'copy':
                 copyMessage(currentContextMessage);
+                break;
+            case 'select':
+                selectMessage(currentContextMessage);
                 break;
             case 'delete-me':
                 // For now, same as delete all (backend doesn't support per-user deletion)
@@ -542,6 +548,25 @@ async function deleteMessage(msg, forAll) {
         messageId: msg.id,
         chatId: currentChatId
     });
+}
+
+function replyMessage(msg) {
+    // Устанавливаем фокус на поле ввода
+    messageInput.focus();
+
+    // Добавляем текст ответа в начало сообщения (можно доработать в будущем для более красивого отображения)
+    const replyText = `↪ ${msg.username}: ${msg.text.substring(0, 50)}${msg.text.length > 50 ? '...' : ''}\n\n`;
+    messageInput.value = replyText;
+    autoResize(messageInput);
+
+    // Перемещаем курсор в конец
+    messageInput.setSelectionRange(messageInput.value.length, messageInput.value.length);
+}
+
+function selectMessage(msg) {
+    // Базовая реализация: просто уведомление
+    // В будущем можно добавить режим множественного выбора с чекбоксами
+    alert('Функция выбора сообщений будет добавлена в следующей версии');
 }
 
 // ============= CREATE CHAT =============

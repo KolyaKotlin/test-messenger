@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -7,7 +6,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 const bodyParser = require('body-parser');
-const nodemailer = require('nodemailer');
 const path = require('path');
 
 const app = express();
@@ -22,37 +20,21 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const pool = new Pool({
-  user: process.env.DB_USER || 'messengeruser',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'messenger',
-  password: process.env.DB_PASSWORD || '12345',
-  port: parseInt(process.env.DB_PORT || '5432'),
+  user: 'messengeruser',
+  host: 'localhost',
+  database: 'messenger',
+  password: '12345',
+  port: 5432,
 });
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_key_change_this_in_production';
+const JWT_SECRET = 'your_super_secret_key_change_this_in_production';
 
-// Настройка Brevo SMTP
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER || 'your_smtp_user',
-    pass: process.env.SMTP_PASS || 'your_smtp_password'
-  }
-});
-
-// Проверка подключения к SMTP
-transporter.verify(function(error, success) {
-  if (error) {
-    console.error('❌ Brevo SMTP error:', error);
-  } else {
-    console.log('✅ Brevo SMTP ready to send emails');
-  }
-});
-
-// Хранилище кодов подтверждения
-let verificationCodes = {};
+// Список валидных ключей регистрации (можно заменить на проверку в БД)
+const VALID_KEYS = [
+  'DEMO1234ABCD5678',
+  'TEST5678EFGH1234',
+  'KEY9876WXYZ5432'
+];
 
 async function initDB() {
   try {
@@ -109,133 +91,22 @@ initDB();
 
 // ============= AUTH ENDPOINTS =============
 
-// Генерация 6-значного кода
-function generateCode() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-// Отправка email с кодом через Brevo
-async function sendVerificationEmail(email, code) {
-  console.log('==============================================');
-  console.log(`📧 EMAIL: ${email}`);
-  console.log(`🔑 КОД: ${code}`);
-  console.log('==============================================');
-
-  const mailOptions = {
-    from: '"Messenger" <9df2ec001@smtp-brevo.com>',
-    to: email,
-    subject: 'Код подтверждения для регистрации',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-          <h1 style="color: white; margin: 0;">Messenger</h1>
-        </div>
-        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
-          <h2 style="color: #374151; margin-top: 0;">Код подтверждения</h2>
-          <p style="color: #6b7280; font-size: 16px;">Ваш код подтверждения для регистрации:</p>
-          <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
-            <span style="font-size: 36px; font-weight: bold; color: #667eea; letter-spacing: 8px;">${code}</span>
-          </div>
-          <p style="color: #6b7280; font-size: 14px;">Код действителен в течение 10 минут.</p>
-          <p style="color: #9ca3af; font-size: 12px; margin-top: 30px;">Если вы не запрашивали этот код, просто проигнорируйте это письмо.</p>
-        </div>
-      </div>
-    `
-  };
-
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent successfully:', info.messageId);
-    return true;
-  } catch (error) {
-    console.error('❌ Email send error:', error);
-    return false;
-  }
-}
-
-app.post('/api/send-code', async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({ error: 'Email required' });
-    }
-
-    // Проверяем, не занят ли email
-    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
-    if (existing.rows.length > 0) {
-      return res.status(400).json({ error: 'Email уже зарегистрирован' });
-    }
-
-    const code = generateCode();
-    verificationCodes[email] = {
-      code: code,
-      expires: Date.now() + 10 * 60 * 1000 // 10 минут
-    };
-
-    // Отправка email
-    const emailSent = await sendVerificationEmail(email, code);
-
-    if (!emailSent) {
-      return res.status(500).json({ error: 'Не удалось отправить код на email' });
-    }
-
-    console.log(`📧 Verification code sent to ${email}: ${code}`);
-
-    res.json({
-      success: true,
-      message: 'Код отправлен на email'
-    });
-
-  } catch (error) {
-    console.error('Send code error:', error);
-    res.status(500).json({ error: 'Failed to send code' });
-  }
-});
-
-app.post('/api/verify-code', (req, res) => {
-  try {
-    const { email, code } = req.body;
-
-    if (!email || !code) {
-      return res.status(400).json({ error: 'Email и код обязательны' });
-    }
-
-    const stored = verificationCodes[email];
-
-    if (!stored) {
-      return res.status(400).json({ error: 'Код не найден' });
-    }
-
-    if (Date.now() > stored.expires) {
-      delete verificationCodes[email];
-      return res.status(400).json({ error: 'Код истек' });
-    }
-
-    if (stored.code !== code) {
-      return res.status(400).json({ error: 'Неверный код' });
-    }
-
-    res.json({ success: true, message: 'Код подтвержден' });
-
-  } catch (error) {
-    console.error('Verify code error:', error);
-    res.status(500).json({ error: 'Verification failed' });
-  }
-});
-
 app.post('/api/register', async (req, res) => {
   try {
-    const { username, email, password, code } = req.body;
+    const { username, email, password, key } = req.body;
 
-    if (!username || !email || !password || !code) {
+    if (!username || !email || !password || !key) {
       return res.status(400).json({ error: 'Все поля обязательны' });
     }
 
-    // Проверка кода
-    const stored = verificationCodes[email];
-    if (!stored || stored.code !== code || Date.now() > stored.expires) {
-      return res.status(400).json({ error: 'Неверный или истекший код' });
+    // Проверка длины ключа
+    if (key.length !== 16) {
+      return res.status(400).json({ error: 'Ключ должен содержать 16 символов' });
+    }
+
+    // Проверка валидности ключа
+    if (!VALID_KEYS.includes(key)) {
+      return res.status(400).json({ error: 'Неверный ключ регистрации' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -246,9 +117,6 @@ app.post('/api/register', async (req, res) => {
     );
 
     const user = result.rows[0];
-
-    // Удаляем использованный код
-    delete verificationCodes[email];
 
     const token = jwt.sign(
       { id: user.id, username: user.username },
