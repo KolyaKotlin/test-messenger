@@ -18,6 +18,8 @@ let allChats = [];
 let selectedGroupUsers = [];
 let typingTimeouts = {};
 let unreadMessages = {};
+let selectionMode = false;
+let selectedMessages = [];
 
 // WebRTC
 let localStream = null;
@@ -564,9 +566,133 @@ function replyMessage(msg) {
 }
 
 function selectMessage(msg) {
-    // Базовая реализация: просто уведомление
-    // В будущем можно добавить режим множественного выбора с чекбоксами
-    alert('Функция выбора сообщений будет добавлена в следующей версии');
+    // Включаем режим выбора
+    if (!selectionMode) {
+        enableSelectionMode();
+    }
+
+    // Добавляем первое сообщение в выбранные
+    toggleMessageSelection(msg.id);
+}
+
+function enableSelectionMode() {
+    selectionMode = true;
+    selectedMessages = [];
+
+    // Добавляем класс к контейнеру сообщений
+    messagesContainer.classList.add('selection-mode');
+
+    // Показываем панель действий
+    const selectionPanel = document.getElementById('selectionPanel');
+    if (selectionPanel) {
+        selectionPanel.classList.add('show');
+    }
+
+    // Добавляем чекбоксы ко всем сообщениям
+    document.querySelectorAll('.message').forEach(msgDiv => {
+        if (!msgDiv.querySelector('.message-checkbox')) {
+            const checkbox = document.createElement('div');
+            checkbox.className = 'message-checkbox';
+            checkbox.innerHTML = '<i class="far fa-square"></i>';
+            checkbox.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const msgId = parseInt(msgDiv.dataset.messageId);
+                toggleMessageSelection(msgId);
+            });
+            msgDiv.insertBefore(checkbox, msgDiv.firstChild);
+        }
+    });
+}
+
+function disableSelectionMode() {
+    selectionMode = false;
+    selectedMessages = [];
+
+    messagesContainer.classList.remove('selection-mode');
+
+    const selectionPanel = document.getElementById('selectionPanel');
+    if (selectionPanel) {
+        selectionPanel.classList.remove('show');
+    }
+
+    // Убираем чекбоксы и выделение
+    document.querySelectorAll('.message').forEach(msgDiv => {
+        msgDiv.classList.remove('selected');
+        const checkbox = msgDiv.querySelector('.message-checkbox');
+        if (checkbox) {
+            checkbox.remove();
+        }
+    });
+
+    updateSelectionCount();
+}
+
+function toggleMessageSelection(messageId) {
+    const index = selectedMessages.indexOf(messageId);
+    const msgDiv = document.querySelector(`.message[data-message-id="${messageId}"]`);
+
+    if (index > -1) {
+        // Убираем из выбранных
+        selectedMessages.splice(index, 1);
+        if (msgDiv) {
+            msgDiv.classList.remove('selected');
+            const checkbox = msgDiv.querySelector('.message-checkbox i');
+            if (checkbox) {
+                checkbox.className = 'far fa-square';
+            }
+        }
+    } else {
+        // Добавляем в выбранные
+        selectedMessages.push(messageId);
+        if (msgDiv) {
+            msgDiv.classList.add('selected');
+            const checkbox = msgDiv.querySelector('.message-checkbox i');
+            if (checkbox) {
+                checkbox.className = 'fas fa-check-square';
+            }
+        }
+    }
+
+    updateSelectionCount();
+}
+
+function updateSelectionCount() {
+    const countElement = document.getElementById('selectedCount');
+    if (countElement) {
+        countElement.textContent = selectedMessages.length;
+    }
+}
+
+function deleteSelectedMessages() {
+    if (selectedMessages.length === 0) return;
+
+    if (!confirm(`Удалить ${selectedMessages.length} сообщений?`)) return;
+
+    selectedMessages.forEach(msgId => {
+        socket.emit('delete_message_all', {
+            messageId: msgId,
+            chatId: currentChatId
+        });
+    });
+
+    disableSelectionMode();
+}
+
+function copySelectedMessages() {
+    if (selectedMessages.length === 0) return;
+
+    const messages = selectedMessages.map(msgId => {
+        const msgDiv = document.querySelector(`.message[data-message-id="${msgId}"]`);
+        if (msgDiv) {
+            const username = msgDiv.querySelector('.message-username')?.textContent || '';
+            const text = msgDiv.querySelector('.message-text')?.textContent || '';
+            return `${username}: ${text}`;
+        }
+        return '';
+    }).filter(m => m).join('\n\n');
+
+    navigator.clipboard.writeText(messages);
+    alert(`Скопировано ${selectedMessages.length} сообщений`);
 }
 
 // ============= CREATE CHAT =============

@@ -82,6 +82,24 @@
                     <!-- Messages will be loaded here -->
                 </div>
 
+                <!-- Selection Panel -->
+                <div class="selection-panel" id="selectionPanel">
+                    <div class="selection-info">
+                        <button class="icon-btn" onclick="disableSelectionMode()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <span>Выбрано: <strong id="selectedCount">0</strong></span>
+                    </div>
+                    <div class="selection-actions">
+                        <button class="icon-btn" onclick="copySelectedMessages()" title="Копировать">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="icon-btn danger" onclick="deleteSelectedMessages()" title="Удалить">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="message-input-container">
                     <button class="icon-btn" id="attachBtn">
                         <i class="fas fa-paperclip"></i>
