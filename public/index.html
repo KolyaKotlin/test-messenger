@@ -8,6 +8,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="auth-page">
+    <!-- Анимированные пузырьки -->
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
     <div class="auth-container">
         <div class="auth-box">
             <div class="auth-header">
@@ -43,63 +57,38 @@
             <div id="registerForm" class="auth-form">
                 <h2>Регистрация</h2>
 
-                <!-- Step 1: Email -->
-                <div class="register-step active" data-step="1">
-                    <div class="input-group">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="registerEmail" placeholder="Email" required>
-                    </div>
-                    <button class="btn btn-primary" id="sendCodeBtn">
-                        <span>Получить код</span>
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="registerEmail" placeholder="Email" required>
                 </div>
 
-                <!-- Step 2: Verification Code -->
-                <div class="register-step" data-step="2">
-                    <p class="info-text">
-                        <i class="fas fa-info-circle"></i>
-                        Введите код из письма, отправленного на <span id="emailDisplay"></span>
-                    </p>
-                    <div class="code-inputs">
-                        <input type="text" maxlength="1" class="code-input" data-index="0">
-                        <input type="text" maxlength="1" class="code-input" data-index="1">
-                        <input type="text" maxlength="1" class="code-input" data-index="2">
-                        <input type="text" maxlength="1" class="code-input" data-index="3">
-                        <input type="text" maxlength="1" class="code-input" data-index="4">
-                        <input type="text" maxlength="1" class="code-input" data-index="5">
-                    </div>
-                    <button class="btn btn-secondary" id="resendCodeBtn">
-                        <i class="fas fa-redo"></i>
-                        Отправить код повторно
-                    </button>
-                    <button class="btn btn-primary" id="verifyCodeBtn">
-                        <span>Подтвердить</span>
-                        <i class="fas fa-check"></i>
-                    </button>
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="registerUsername" placeholder="Имя пользователя" required>
                 </div>
 
-                <!-- Step 3: Create Account -->
-                <div class="register-step" data-step="3">
-                    <div class="input-group">
-                        <i class="fas fa-user"></i>
-                        <input type="text" id="registerUsername" placeholder="Имя пользователя" required>
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="registerPassword" placeholder="Пароль" required>
-                        <i class="fas fa-eye toggle-password"></i>
-                    </div>
-                    <div class="input-group">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="registerPasswordConfirm" placeholder="Подтвердите пароль" required>
-                        <i class="fas fa-eye toggle-password"></i>
-                    </div>
-                    <button class="btn btn-primary" id="completeRegisterBtn">
-                        <span>Создать аккаунт</span>
-                        <i class="fas fa-user-plus"></i>
-                    </button>
+                <div class="input-group">
+                    <i class="fas fa-key"></i>
+                    <input type="text" id="registerKey" placeholder="16-значный ключ доступа" maxlength="16" required>
+                    <span class="key-counter">0/16</span>
                 </div>
+
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="registerPassword" placeholder="Пароль" required>
+                    <i class="fas fa-eye toggle-password"></i>
+                </div>
+
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="registerPasswordConfirm" placeholder="Подтвердите пароль" required>
+                    <i class="fas fa-eye toggle-password"></i>
+                </div>
+
+                <button class="btn btn-primary" id="registerBtn">
+                    <span>Создать аккаунт</span>
+                    <i class="fas fa-user-plus"></i>
+                </button>
 
                 <p class="switch-form">
                     Уже есть аккаунт? <a href="#" id="showLogin">Войти</a>
@@ -108,14 +97,6 @@
 
             <div class="error-message" id="errorMessage"></div>
             <div class="success-message" id="successMessage"></div>
-        </div>
-
-        <div class="particles">
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
-            <div class="particle"></div>
         </div>
     </div>
 

@@ -15,18 +15,12 @@ const loginBtn = document.getElementById('loginBtn');
 
 // Register elements
 const registerEmail = document.getElementById('registerEmail');
-const sendCodeBtn = document.getElementById('sendCodeBtn');
-const verifyCodeBtn = document.getElementById('verifyCodeBtn');
-const resendCodeBtn = document.getElementById('resendCodeBtn');
 const registerUsername = document.getElementById('registerUsername');
+const registerKey = document.getElementById('registerKey');
 const registerPassword = document.getElementById('registerPassword');
 const registerPasswordConfirm = document.getElementById('registerPasswordConfirm');
-const completeRegisterBtn = document.getElementById('completeRegisterBtn');
-const emailDisplay = document.getElementById('emailDisplay');
-
-let currentStep = 1;
-let verificationCode = '';
-let registrationEmail = '';
+const registerBtn = document.getElementById('registerBtn');
+const keyCounter = document.querySelector('.key-counter');
 
 // Switch forms
 showRegisterLink.addEventListener('click', (e) => {
@@ -41,7 +35,6 @@ showLoginLink.addEventListener('click', (e) => {
     registerForm.classList.remove('active');
     loginForm.classList.add('active');
     clearMessages();
-    resetRegisterForm();
 });
 
 // Toggle password visibility
@@ -58,6 +51,18 @@ document.querySelectorAll('.toggle-password').forEach(icon => {
             this.classList.add('fa-eye');
         }
     });
+});
+
+// Key counter
+registerKey.addEventListener('input', () => {
+    const length = registerKey.value.length;
+    keyCounter.textContent = `${length}/16`;
+
+    if (length === 16) {
+        keyCounter.classList.add('complete');
+    } else {
+        keyCounter.classList.remove('complete');
+    }
 });
 
 // Login
@@ -104,172 +109,31 @@ loginBtn.addEventListener('click', async () => {
     }
 });
 
-// Send verification code
-sendCodeBtn.addEventListener('click', async () => {
+// Register
+registerBtn.addEventListener('click', async () => {
     const email = registerEmail.value.trim();
-
-    if (!email || !validateEmail(email)) {
-        showError('Введите корректный email');
-        return;
-    }
-
-    sendCodeBtn.classList.add('loading');
-    clearMessages();
-
-    try {
-        const response = await fetch(`${API_URL}/api/send-code`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || 'Ошибка отправки кода');
-        }
-
-        registrationEmail = email;
-        emailDisplay.textContent = email;
-        showSuccess('Код отправлен на ваш email!');
-        goToStep(2);
-
-    } catch (error) {
-        showError(error.message);
-    } finally {
-        sendCodeBtn.classList.remove('loading');
-    }
-});
-
-// Code inputs handling
-const codeInputs = document.querySelectorAll('.code-input');
-codeInputs.forEach((input, index) => {
-    input.addEventListener('input', (e) => {
-        const value = e.target.value;
-
-        if (value.length === 1 && index < codeInputs.length - 1) {
-            codeInputs[index + 1].focus();
-        }
-
-        updateVerificationCode();
-    });
-
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace' && !e.target.value && index > 0) {
-            codeInputs[index - 1].focus();
-        }
-    });
-
-    input.addEventListener('paste', (e) => {
-        e.preventDefault();
-        const pastedData = e.clipboardData.getData('text').slice(0, 6);
-
-        pastedData.split('').forEach((char, i) => {
-            if (i < codeInputs.length) {
-                codeInputs[i].value = char;
-            }
-        });
-
-        updateVerificationCode();
-
-        if (pastedData.length === 6) {
-            codeInputs[5].focus();
-        }
-    });
-});
-
-function updateVerificationCode() {
-    verificationCode = Array.from(codeInputs).map(input => input.value).join('');
-}
-
-// Verify code
-verifyCodeBtn.addEventListener('click', async () => {
-    if (verificationCode.length !== 6) {
-        showError('Введите 6-значный код');
-        return;
-    }
-
-    verifyCodeBtn.classList.add('loading');
-    clearMessages();
-
-    try {
-        const response = await fetch(`${API_URL}/api/verify-code`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: registrationEmail,
-                code: verificationCode
-            })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || 'Неверный код');
-        }
-
-        showSuccess('Код подтвержден!');
-        goToStep(3);
-
-    } catch (error) {
-        showError(error.message);
-        codeInputs.forEach(input => input.value = '');
-        codeInputs[0].focus();
-        verificationCode = '';
-    } finally {
-        verifyCodeBtn.classList.remove('loading');
-    }
-});
-
-// Resend code
-resendCodeBtn.addEventListener('click', async () => {
-    resendCodeBtn.classList.add('loading');
-    clearMessages();
-
-    try {
-        const response = await fetch(`${API_URL}/api/send-code`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email: registrationEmail })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || 'Ошибка отправки кода');
-        }
-
-        showSuccess('Код отправлен повторно!');
-        codeInputs.forEach(input => input.value = '');
-        codeInputs[0].focus();
-        verificationCode = '';
-
-    } catch (error) {
-        showError(error.message);
-    } finally {
-        resendCodeBtn.classList.remove('loading');
-    }
-});
-
-// Complete registration
-completeRegisterBtn.addEventListener('click', async () => {
     const username = registerUsername.value.trim();
+    const key = registerKey.value.trim();
     const password = registerPassword.value;
     const passwordConfirm = registerPasswordConfirm.value;
 
-    if (!username || !password || !passwordConfirm) {
+    if (!email || !username || !key || !password || !passwordConfirm) {
         showError('Заполните все поля');
+        return;
+    }
+
+    if (!validateEmail(email)) {
+        showError('Введите корректный email');
         return;
     }
 
     if (username.length < 3) {
         showError('Имя пользователя должно быть не менее 3 символов');
+        return;
+    }
+
+    if (key.length !== 16) {
+        showError('Ключ должен содержать 16 символов');
         return;
     }
 
@@ -283,7 +147,7 @@ completeRegisterBtn.addEventListener('click', async () => {
         return;
     }
 
-    completeRegisterBtn.classList.add('loading');
+    registerBtn.classList.add('loading');
     clearMessages();
 
     try {
@@ -294,9 +158,9 @@ completeRegisterBtn.addEventListener('click', async () => {
             },
             body: JSON.stringify({
                 username,
-                email: registrationEmail,
+                email,
                 password,
-                code: verificationCode
+                key
             })
         });
 
@@ -318,30 +182,11 @@ completeRegisterBtn.addEventListener('click', async () => {
     } catch (error) {
         showError(error.message);
     } finally {
-        completeRegisterBtn.classList.remove('loading');
+        registerBtn.classList.remove('loading');
     }
 });
 
 // Helper functions
-function goToStep(step) {
-    document.querySelectorAll('.register-step').forEach(s => {
-        s.classList.remove('active');
-    });
-    document.querySelector(`.register-step[data-step="${step}"]`).classList.add('active');
-    currentStep = step;
-}
-
-function resetRegisterForm() {
-    goToStep(1);
-    registerEmail.value = '';
-    registerUsername.value = '';
-    registerPassword.value = '';
-    registerPasswordConfirm.value = '';
-    codeInputs.forEach(input => input.value = '');
-    verificationCode = '';
-    registrationEmail = '';
-}
-
 function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
@@ -378,10 +223,14 @@ loginPassword.addEventListener('keypress', (e) => {
 });
 
 registerEmail.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') sendCodeBtn.click();
+    if (e.key === 'Enter') registerUsername.focus();
 });
 
 registerUsername.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') registerKey.focus();
+});
+
+registerKey.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') registerPassword.focus();
 });
 
@@ -390,7 +239,7 @@ registerPassword.addEventListener('keypress', (e) => {
 });
 
 registerPasswordConfirm.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') completeRegisterBtn.click();
+    if (e.key === 'Enter') registerBtn.click();
 });
 
 // Check if already logged in
