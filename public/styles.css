@@ -72,19 +72,102 @@ body {
     }
 }
 
-@keyframes floatBubble {
+/* Космические анимации пузырей */
+@keyframes floatUp {
     0% {
-        transform: translateY(100vh) scale(0);
+        transform: translateY(100vh) translateX(0) scale(0) rotate(0deg);
         opacity: 0;
     }
-    10% {
-        opacity: 1;
+    10% { opacity: 0.8; }
+    50% {
+        transform: translateY(50vh) translateX(30px) scale(1) rotate(180deg);
     }
-    90% {
-        opacity: 1;
-    }
+    90% { opacity: 0.8; }
     100% {
-        transform: translateY(-100vh) scale(1);
+        transform: translateY(-10vh) translateX(0) scale(0.8) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes floatDiagonalRight {
+    0% {
+        transform: translate(-20vw, 100vh) scale(0);
+        opacity: 0;
+    }
+    10% { opacity: 0.6; }
+    50% {
+        transform: translate(10vw, 50vh) scale(1.2);
+    }
+    90% { opacity: 0.6; }
+    100% {
+        transform: translate(30vw, -10vh) scale(0.5);
+        opacity: 0;
+    }
+}
+
+@keyframes floatDiagonalLeft {
+    0% {
+        transform: translate(20vw, 100vh) scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    10% { opacity: 0.7; }
+    50% {
+        transform: translate(-10vw, 50vh) scale(1.1) rotate(180deg);
+    }
+    90% { opacity: 0.7; }
+    100% {
+        transform: translate(-30vw, -10vh) scale(0.6) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes floatZigzag {
+    0% {
+        transform: translateY(100vh) translateX(0) scale(0);
+        opacity: 0;
+    }
+    10% { opacity: 0.9; }
+    25% {
+        transform: translateY(75vh) translateX(50px) scale(0.8);
+    }
+    50% {
+        transform: translateY(50vh) translateX(-30px) scale(1);
+    }
+    75% {
+        transform: translateY(25vh) translateX(40px) scale(0.9);
+    }
+    90% { opacity: 0.9; }
+    100% {
+        transform: translateY(-10vh) translateX(0) scale(0.7);
+        opacity: 0;
+    }
+}
+
+@keyframes floatSlow {
+    0% {
+        transform: translateY(100vh) scale(0.3);
+        opacity: 0;
+    }
+    10% { opacity: 0.3; }
+    90% { opacity: 0.3; }
+    100% {
+        transform: translateY(-100vh) scale(0.5);
+        opacity: 0;
+    }
+}
+
+@keyframes floatDeep {
+    0% {
+        transform: translateY(100vh) translateX(-50px) scale(1.5);
+        opacity: 0;
+    }
+    10% { opacity: 1; }
+    50% {
+        transform: translateY(50vh) translateX(50px) scale(1.8);
+    }
+    90% { opacity: 1; }
+    100% {
+        transform: translateY(-10vh) translateX(-50px) scale(1.5);
         opacity: 0;
     }
 }
@@ -143,210 +226,37 @@ body {
         rgba(118, 75, 162, 0.3));
     border-radius: 50%;
     backdrop-filter: blur(10px);
-    animation: floatBubble 15s infinite ease-in;
     box-shadow: 0 0 20px rgba(102, 126, 234, 0.3),
                 inset 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
-.bubble:nth-child(1) {
-    width: 80px;
-    height: 80px;
-    left: 10%;
-    animation-duration: 12s;
-    animation-delay: 0s;
-}
+.bubble:nth-child(1) { animation: floatUp 12s infinite ease-in-out; animation-delay: 0s; }
+.bubble:nth-child(2) { animation: floatDiagonalRight 14s infinite ease-in-out; animation-delay: 2s; opacity: 0.5; }
+.bubble:nth-child(3) { animation: floatDeep 16s infinite ease-in-out; animation-delay: 4s; }
+.bubble:nth-child(4) { animation: floatZigzag 13s infinite ease-in-out; animation-delay: 1s; }
+.bubble:nth-child(5) { animation: floatDiagonalLeft 15s infinite ease-in-out; animation-delay: 3s; }
+.bubble:nth-child(6) { animation: floatSlow 11s infinite ease-in-out; animation-delay: 5s; opacity: 0.4; }
+.bubble:nth-child(7) { animation: floatDiagonalRight 17s infinite ease-in-out; animation-delay: 2.5s; }
+.bubble:nth-child(8) { animation: floatUp 14.5s infinite ease-in-out; animation-delay: 4.5s; }
+.bubble:nth-child(9) { animation: floatZigzag 13.5s infinite ease-in-out; animation-delay: 1.5s; }
+.bubble:nth-child(10) { animation: floatDiagonalLeft 15.5s infinite ease-in-out; animation-delay: 3.5s; }
+.bubble:nth-child(11) { animation: floatSlow 13.5s infinite ease-in-out; animation-delay: 1.2s; opacity: 0.35; }
+.bubble:nth-child(12) { animation: floatDeep 16.5s infinite ease-in-out; animation-delay: 4.8s; }
+.bubble:nth-child(13) { animation: floatDiagonalRight 12.8s infinite ease-in-out; animation-delay: 2.3s; }
+.bubble:nth-child(14) { animation: floatZigzag 14.2s infinite ease-in-out; animation-delay: 3.9s; }
+.bubble:nth-child(15) { animation: floatUp 17.5s infinite ease-in-out; animation-delay: 5.5s; }
+.bubble:nth-child(16) { animation: floatDiagonalLeft 13.2s infinite ease-in-out; animation-delay: 1.8s; }
+.bubble:nth-child(17) { animation: floatSlow 14.8s infinite ease-in-out; animation-delay: 2.7s; opacity: 0.45; }
+.bubble:nth-child(18) { animation: floatDeep 15.8s infinite ease-in-out; animation-delay: 4.2s; }
+.bubble:nth-child(19) { animation: floatDiagonalRight 16.2s infinite ease-in-out; animation-delay: 5.1s; }
+.bubble:nth-child(20) { animation: floatZigzag 13.8s infinite ease-in-out; animation-delay: 3.3s; }
+.bubble:nth-child(21) { animation: floatUp 14.5s infinite ease-in-out; animation-delay: 2.1s; }
+.bubble:nth-child(22) { animation: floatDiagonalLeft 15.2s infinite ease-in-out; animation-delay: 4.5s; }
+.bubble:nth-child(23) { animation: floatSlow 12.5s infinite ease-in-out; animation-delay: 1.5s; opacity: 0.4; }
+.bubble:nth-child(24) { animation: floatDeep 17.2s infinite ease-in-out; animation-delay: 5.8s; }
+.bubble:nth-child(25) { animation: floatDiagonalRight 14.8s infinite ease-in-out; animation-delay: 3.6s; }
 
-.bubble:nth-child(2) {
-    width: 60px;
-    height: 60px;
-    left: 20%;
-    animation-duration: 14s;
-    animation-delay: 2s;
-}
 
-.bubble:nth-child(3) {
-    width: 100px;
-    height: 100px;
-    left: 35%;
-    animation-duration: 16s;
-    animation-delay: 4s;
-}
-
-.bubble:nth-child(4) {
-    width: 70px;
-    height: 70px;
-    left: 50%;
-    animation-duration: 13s;
-    animation-delay: 1s;
-}
-
-.bubble:nth-child(5) {
-    width: 90px;
-    height: 90px;
-    left: 65%;
-    animation-duration: 15s;
-    animation-delay: 3s;
-}
-
-.bubble:nth-child(6) {
-    width: 55px;
-    height: 55px;
-    left: 75%;
-    animation-duration: 11s;
-    animation-delay: 5s;
-}
-
-.bubble:nth-child(7) {
-    width: 85px;
-    height: 85px;
-    left: 85%;
-    animation-duration: 17s;
-    animation-delay: 2.5s;
-}
-
-.bubble:nth-child(8) {
-    width: 65px;
-    height: 65px;
-    left: 5%;
-    animation-duration: 14.5s;
-    animation-delay: 4.5s;
-}
-
-.bubble:nth-child(9) {
-    width: 95px;
-    height: 95px;
-    left: 40%;
-    animation-duration: 13.5s;
-    animation-delay: 1.5s;
-}
-
-.bubble:nth-child(10) {
-    width: 75px;
-    height: 75px;
-    left: 90%;
-    animation-duration: 15.5s;
-    animation-delay: 3.5s;
-}
-
-.bubble:nth-child(11) {
-    width: 65px;
-    height: 65px;
-    left: 15%;
-    animation-duration: 13.5s;
-    animation-delay: 1.2s;
-}
-
-.bubble:nth-child(12) {
-    width: 85px;
-    height: 85px;
-    left: 25%;
-    animation-duration: 16.5s;
-    animation-delay: 4.8s;
-}
-
-.bubble:nth-child(13) {
-    width: 58px;
-    height: 58px;
-    left: 48%;
-    animation-duration: 12.8s;
-    animation-delay: 2.3s;
-}
-
-.bubble:nth-child(14) {
-    width: 72px;
-    height: 72px;
-    left: 62%;
-    animation-duration: 14.2s;
-    animation-delay: 3.9s;
-}
-
-.bubble:nth-child(15) {
-    width: 95px;
-    height: 95px;
-    left: 78%;
-    animation-duration: 17.5s;
-    animation-delay: 5.5s;
-}
-
-.bubble:nth-child(16) {
-    width: 60px;
-    height: 60px;
-    left: 8%;
-    animation-duration: 13.2s;
-    animation-delay: 1.8s;
-}
-
-.bubble:nth-child(17) {
-    width: 68px;
-    height: 68px;
-    left: 33%;
-    animation-duration: 14.8s;
-    animation-delay: 2.7s;
-}
-
-.bubble:nth-child(18) {
-    width: 78px;
-    height: 78px;
-    left: 55%;
-    animation-duration: 15.8s;
-    animation-delay: 4.2s;
-}
-
-.bubble:nth-child(19) {
-    width: 88px;
-    height: 88px;
-    left: 70%;
-    animation-duration: 16.2s;
-    animation-delay: 5.1s;
-}
-
-.bubble:nth-child(20) {
-    width: 63px;
-    height: 63px;
-    left: 85%;
-    animation-duration: 13.8s;
-    animation-delay: 3.3s;
-}
-
-.bubble:nth-child(21) {
-    width: 70px;
-    height: 70px;
-    left: 12%;
-    animation-duration: 14.5s;
-    animation-delay: 2.1s;
-}
-
-.bubble:nth-child(22) {
-    width: 82px;
-    height: 82px;
-    left: 42%;
-    animation-duration: 15.2s;
-    animation-delay: 4.5s;
-}
-
-.bubble:nth-child(23) {
-    width: 56px;
-    height: 56px;
-    left: 65%;
-    animation-duration: 12.5s;
-    animation-delay: 1.5s;
-}
-
-.bubble:nth-child(24) {
-    width: 92px;
-    height: 92px;
-    left: 75%;
-    animation-duration: 17.2s;
-    animation-delay: 5.8s;
-}
-
-.bubble:nth-child(25) {
-    width: 66px;
-    height: 66px;
-    left: 95%;
-    animation-duration: 14.8s;
-    animation-delay: 3.6s;
-}
 
 .auth-container {
     width: 100%;
@@ -410,8 +320,120 @@ body {
 }
 
 .auth-form h2 {
-    margin-bottom: 25px;
+    margin-bottom: 10px;
     font-size: 24px;
+}
+
+.step-description {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+/* Progress Steps */
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 35px;
+    position: relative;
+}
+
+.progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 20%;
+    right: 20%;
+    height: 2px;
+    background: var(--border-color);
+    z-index: 0;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.step.active .step-circle {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.4);
+}
+
+.step.completed .step-circle {
+    background: var(--success-color);
+    border-color: var(--success-color);
+    color: white;
+}
+
+.step span {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.step.active span {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Register Steps */
+.register-step {
+    display: none;
+}
+
+.register-step.active {
+    display: block;
+    animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.step-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.step-buttons .btn {
+    flex: 1;
+}
+
+.btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-secondary);
 }
 
 .input-group {
@@ -1564,4 +1586,193 @@ body {
 
 .slide-in {
     animation: slideIn 0.3s ease-out;
+}
+
+/* Scroll to Bottom Button */
+.scroll-to-bottom {
+    position: absolute;
+    right: 20px;
+    bottom: 100px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.scroll-to-bottom:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+}
+
+.scroll-to-bottom:active {
+    transform: translateY(-1px);
+}
+
+/* Chat Welcome */
+.chat-welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.welcome-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    color: white;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+}
+
+.chat-welcome h3 {
+    font-size: 22px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.chat-welcome p {
+    font-size: 15px;
+    max-width: 300px;
+}
+
+/* Date Separator */
+.date-separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.date-separator span {
+    background: var(--bg-secondary);
+    padding: 6px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    z-index: 1;
+}
+
+.date-separator::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border-color);
+    z-index: 0;
+}
+
+/* Sticky Date Header */
+.sticky-date {
+    position: sticky;
+    top: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 10px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    z-index: 5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Profile Modal */
+.profile-content {
+    max-width: 500px;
+    padding: 0;
+}
+
+.profile-body {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.profile-avatar {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.avatar-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    color: white;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+}
+
+.profile-avatar .status-indicator {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 22px;
+    height: 22px;
+    border: 3px solid var(--bg-primary);
+}
+
+.profile-info h3 {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.profile-info p {
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+}
+
+.profile-joined {
+    font-size: 13px;
+    margin-top: 15px !important;
+}
+
+/* Online Status */
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--text-secondary);
+}
+
+.status-indicator.online {
+    background: var(--success-color);
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+}
+
+.status-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.status-text.online {
+    color: var(--success-color);
 }

@@ -106,6 +106,7 @@ function connectSocket() {
         const currentUserId = parseInt(user.id);
 
         if (data.chatId === currentChatId) {
+            hideChatWelcome();
             displayMessage(data);
             scrollToBottom();
         } else if (messageUserId !== currentUserId) {
@@ -344,7 +345,13 @@ async function loadMessages(chatId) {
         const messages = await response.json();
         messagesContainer.innerHTML = '';
 
-        messages.forEach(msg => displayMessage(msg));
+        if (messages.length === 0) {
+            showChatWelcome();
+        } else {
+            hideChatWelcome();
+            messages.forEach(msg => displayMessage(msg));
+        }
+
         scrollToBottom();
     } catch (error) {
         console.error('Error loading messages:', error);
@@ -1254,6 +1261,73 @@ rejectCallBtn.addEventListener('click', rejectCall);
 endCallBtn.addEventListener('click', endCall);
 muteBtn.addEventListener('click', toggleMute);
 cameraBtn.addEventListener('click', toggleCamera);
+
+// ============= SCROLL TO BOTTOM =============
+const scrollToBottomBtn = document.getElementById('scrollToBottom');
+
+function scrollToBottom(smooth = true) {
+    messagesContainer.scrollTo({
+        top: messagesContainer.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto'
+    });
+}
+
+messagesContainer.addEventListener('scroll', () => {
+    const isNearBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < 100;
+
+    if (isNearBottom) {
+        scrollToBottomBtn.style.display = 'none';
+    } else {
+        scrollToBottomBtn.style.display = 'flex';
+    }
+});
+
+scrollToBottomBtn.addEventListener('click', () => scrollToBottom());
+
+// ============= CHAT WELCOME =============
+const chatWelcome = document.getElementById('chatWelcome');
+
+function showChatWelcome() {
+    chatWelcome.style.display = 'flex';
+}
+
+function hideChatWelcome() {
+    chatWelcome.style.display = 'none';
+}
+
+// ============= PROFILE MODAL =============
+const profileModal = document.getElementById('profileModal');
+const profileBtn = document.getElementById('profileBtn');
+const closeProfileModal = document.getElementById('closeProfileModal');
+const profileUsername = document.getElementById('profileUsername');
+const profileEmail = document.getElementById('profileEmail');
+const profileJoined = document.getElementById('profileJoined');
+
+profileBtn.addEventListener('click', () => {
+    profileUsername.textContent = user.username;
+    profileEmail.textContent = user.email;
+
+    if (user.created_at) {
+        const joined = new Date(user.created_at);
+        profileJoined.textContent = joined.toLocaleDateString('ru-RU', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+
+    profileModal.classList.add('show');
+});
+
+closeProfileModal.addEventListener('click', () => {
+    profileModal.classList.remove('show');
+});
+
+profileModal.addEventListener('click', (e) => {
+    if (e.target === profileModal) {
+        profileModal.classList.remove('show');
+    }
+});
 
 // ============= INITIALIZATION =============
 loadChats();

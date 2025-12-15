@@ -29,6 +29,9 @@
                     <button class="icon-btn" id="settingsBtn" title="Настройки">
                         <i class="fas fa-cog"></i>
                     </button>
+                    <button class="icon-btn" id="profileBtn" title="Профиль">
+                        <i class="fas fa-user-circle"></i>
+                    </button>
                     <button class="icon-btn" id="logoutBtn" title="Выйти">
                         <i class="fas fa-sign-out-alt"></i>
                     </button>
@@ -79,8 +82,21 @@
                 </div>
 
                 <div class="messages-container" id="messagesContainer">
+                    <!-- Chat Welcome Message -->
+                    <div class="chat-welcome" id="chatWelcome" style="display: none;">
+                        <div class="welcome-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3>Начните общение</h3>
+                        <p>Это начало вашей переписки. Напишите первое сообщение!</p>
+                    </div>
                     <!-- Messages will be loaded here -->
                 </div>
+
+                <!-- Scroll to Bottom Button -->
+                <button class="scroll-to-bottom" id="scrollToBottom" style="display: none;">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
 
                 <!-- Selection Panel -->
                 <div class="selection-panel" id="selectionPanel">
@@ -225,6 +241,31 @@
                 <button class="call-btn end-btn" id="rejectCallBtn">
                     <i class="fas fa-phone-slash"></i>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content profile-content">
+            <div class="modal-header">
+                <h2>Профиль</h2>
+                <button class="close-modal" id="closeProfileModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="profile-body">
+                <div class="profile-avatar">
+                    <div class="avatar-circle">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="status-indicator online" id="profileStatus"></div>
+                </div>
+                <div class="profile-info">
+                    <h3 id="profileUsername"></h3>
+                    <p id="profileEmail"></p>
+                    <p class="profile-joined">Регистрация: <span id="profileJoined"></span></p>
+                </div>
             </div>
         </div>
     </div>

@@ -65,6 +65,67 @@ registerKey.addEventListener('input', () => {
     }
 });
 
+// Multi-step registration
+let currentStep = 1;
+
+function goToStep(step) {
+    // Hide all steps
+    document.querySelectorAll('.register-step').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.progress-steps .step').forEach(s => s.classList.remove('active', 'completed'));
+
+    // Show current step
+    document.querySelector(`.register-step[data-step="${step}"]`).classList.add('active');
+    document.querySelector(`.progress-steps .step[data-step="${step}"]`).classList.add('active');
+
+    // Mark completed steps
+    for (let i = 1; i < step; i++) {
+        document.querySelector(`.progress-steps .step[data-step="${i}"]`).classList.add('completed');
+    }
+
+    currentStep = step;
+    clearMessages();
+}
+
+// Step 1 -> Step 2
+document.getElementById('nextStep1').addEventListener('click', () => {
+    const email = registerEmail.value.trim();
+    const username = registerUsername.value.trim();
+
+    if (!email || !username) {
+        showError('Заполните все поля');
+        return;
+    }
+
+    if (!email.includes('@')) {
+        showError('Введите корректный email');
+        return;
+    }
+
+    goToStep(2);
+});
+
+// Step 2 -> Step 1
+document.getElementById('prevStep2').addEventListener('click', () => {
+    goToStep(1);
+});
+
+// Step 2 -> Step 3
+document.getElementById('nextStep2').addEventListener('click', () => {
+    const key = registerKey.value.trim();
+
+    if (!key || key.length !== 16) {
+        showError('Введите 16-значный ключ');
+        return;
+    }
+
+    goToStep(3);
+});
+
+// Step 3 -> Step 2
+document.getElementById('prevStep3').addEventListener('click', () => {
+    goToStep(2);
+});
+
 // Login
 loginBtn.addEventListener('click', async () => {
     const email = loginEmail.value.trim();

@@ -70,40 +70,94 @@
 
             <!-- Register Form -->
             <div id="registerForm" class="auth-form">
-                <h2>Регистрация</h2>
-
-                <div class="input-group">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="registerEmail" placeholder="Email" required>
+                <!-- Progress Steps -->
+                <div class="progress-steps">
+                    <div class="step active" data-step="1">
+                        <div class="step-circle">1</div>
+                        <span>Данные</span>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-circle">2</div>
+                        <span>Ключ</span>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-circle">3</div>
+                        <span>Пароль</span>
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <i class="fas fa-user"></i>
-                    <input type="text" id="registerUsername" placeholder="Имя пользователя" required>
+                <!-- Step 1: Email & Username -->
+                <div class="register-step active" data-step="1">
+                    <h2>Создание аккаунта</h2>
+                    <p class="step-description">Введите ваши данные</p>
+
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="registerEmail" placeholder="Email" required>
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="registerUsername" placeholder="Имя пользователя" required>
+                    </div>
+
+                    <button class="btn btn-primary" id="nextStep1">
+                        <span>Далее</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
                 </div>
 
-                <div class="input-group">
-                    <i class="fas fa-key"></i>
-                    <input type="text" id="registerKey" placeholder="16-значный ключ доступа" maxlength="16" required>
-                    <span class="key-counter">0/16</span>
+                <!-- Step 2: Access Key -->
+                <div class="register-step" data-step="2">
+                    <h2>Ключ доступа</h2>
+                    <p class="step-description">Введите 16-значный ключ регистрации</p>
+
+                    <div class="input-group">
+                        <i class="fas fa-key"></i>
+                        <input type="text" id="registerKey" placeholder="16-значный ключ доступа" maxlength="16" required>
+                        <span class="key-counter">0/16</span>
+                    </div>
+
+                    <div class="step-buttons">
+                        <button class="btn btn-secondary" id="prevStep2">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Назад</span>
+                        </button>
+                        <button class="btn btn-primary" id="nextStep2">
+                            <span>Далее</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="registerPassword" placeholder="Пароль" required>
-                    <i class="fas fa-eye toggle-password"></i>
-                </div>
+                <!-- Step 3: Password -->
+                <div class="register-step" data-step="3">
+                    <h2>Создание пароля</h2>
+                    <p class="step-description">Придумайте надежный пароль</p>
 
-                <div class="input-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="registerPasswordConfirm" placeholder="Подтвердите пароль" required>
-                    <i class="fas fa-eye toggle-password"></i>
-                </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="registerPassword" placeholder="Пароль" required>
+                        <i class="fas fa-eye toggle-password"></i>
+                    </div>
 
-                <button class="btn btn-primary" id="registerBtn">
-                    <span>Создать аккаунт</span>
-                    <i class="fas fa-user-plus"></i>
-                </button>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="registerPasswordConfirm" placeholder="Подтвердите пароль" required>
+                        <i class="fas fa-eye toggle-password"></i>
+                    </div>
+
+                    <div class="step-buttons">
+                        <button class="btn btn-secondary" id="prevStep3">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Назад</span>
+                        </button>
+                        <button class="btn btn-primary" id="registerBtn">
+                            <span>Создать аккаунт</span>
+                            <i class="fas fa-user-plus"></i>
+                        </button>
+                    </div>
+                </div>
 
                 <p class="switch-form">
                     Уже есть аккаунт? <a href="#" id="showLogin">Войти</a>
