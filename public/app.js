@@ -20,6 +20,8 @@ let typingTimeouts = {};
 let unreadMessages = {};
 let selectionMode = false;
 let selectedMessages = [];
+let userStatuses = {}; // Хранение статусов пользователей
+let hiddenMessages = new Set(); // Сообщения скрытые только у текущего пользователя
 
 // WebRTC
 let localStream = null;
@@ -100,10 +102,18 @@ function connectSocket() {
         window.location.href = 'index.html';
     });
 
-    socket.on('message', (data) => {
+    socket.on('message', async (data) => {
         // Приводим ID к числу для корректного сравнения
         const messageUserId = parseInt(data.userId);
         const currentUserId = parseInt(user.id);
+
+        // Проверяем, есть ли этот чат в списке
+        const chatExists = allChats.some(c => c.id === data.chatId);
+
+        if (!chatExists) {
+            // Если чата нет в списке - перезагружаем список чатов
+            await loadChats();
+        }
 
         if (data.chatId === currentChatId) {
             hideChatWelcome();
@@ -145,24 +155,48 @@ function connectSocket() {
         }
     });
 
+    socket.on('message_deleted_me', (data) => {
+        // Удаление только для себя - добавляем в список скрытых
+        hiddenMessages.add(data.messageId);
+
+        // Сохраняем в localStorage
+        const hidden = JSON.parse(localStorage.getItem('hiddenMessages') || '[]');
+        hidden.push(data.messageId);
+        localStorage.setItem('hiddenMessages', JSON.stringify(hidden));
+
+        // Удаляем из UI
+        const messageEl = document.querySelector(`[data-message-id="${data.messageId}"]`);
+        if (messageEl) {
+            messageEl.remove();
+        }
+    });
+
     socket.on('typing_start', (data) => {
         if (data.chatId === currentChatId && data.userId !== user.id) {
             typingIndicator.textContent = `${data.username} печатает...`;
             typingIndicator.style.display = 'block';
+            typingIndicator.style.color = 'var(--text-secondary)';
         }
     });
 
     socket.on('typing_stop', (data) => {
         if (data.chatId === currentChatId && data.userId !== user.id) {
-            typingIndicator.style.display = 'none';
+            // Восстанавливаем статус вместо просто скрытия
+            const status = userStatuses[data.userId];
+            if (status) {
+                updateChatHeaderStatus(status.isOnline, status.lastSeen);
+            } else {
+                typingIndicator.style.display = 'none';
+            }
         }
     });
 
     // Call events
     socket.on('incoming_call', async (data) => {
         currentCallUser = data.callerId;
+        currentCallIsVideo = data.isVideo || false;
         callerName.textContent = data.callerName;
-        callStatus.textContent = 'Входящий звонок...';
+        callStatus.textContent = currentCallIsVideo ? 'Входящий видео звонок...' : 'Входящий звонок...';
         incomingCallActions.style.display = 'flex';
         document.querySelector('.call-controls').style.display = 'none';
         callModal.classList.add('show');
@@ -218,12 +252,35 @@ function connectSocket() {
         });
     });
 
+    socket.on('user_status', (data) => {
+        // Сохраняем статус пользователя
+        userStatuses[data.userId] = {
+            isOnline: data.isOnline,
+            lastSeen: data.lastSeen
+        };
+
+        // Обновляем индикаторы онлайн
+        updateUserStatus(data.userId, data.isOnline);
+
+        // Обновляем статус в шапке чата если это текущий собеседник
+        if (currentChatData && !currentChatData.is_group) {
+            const otherUser = currentChatData.participants.find(p => p.id !== user.id);
+            if (otherUser && otherUser.id === data.userId) {
+                updateChatHeaderStatus(data.isOnline, data.lastSeen);
+            }
+        }
+    });
+
     socket.on('disconnect', () => {
         console.log('Disconnected from server');
     });
 }
 
 connectSocket();
+
+// Загрузка скрытых сообщений из localStorage
+const storedHidden = JSON.parse(localStorage.getItem('hiddenMessages') || '[]');
+hiddenMessages = new Set(storedHidden);
 
 // ============= CHAT FUNCTIONS =============
 async function loadChats() {
@@ -323,6 +380,25 @@ async function openChat(chat) {
 
     chatName.textContent = chatDisplayName;
 
+    // Обновляем статус пользователя в шапке чата
+    if (!chat.is_group && otherUser) {
+        const status = userStatuses[otherUser.id];
+        if (status) {
+            updateChatHeaderStatus(status.isOnline, status.lastSeen);
+        } else {
+            // Запрашиваем статус у сервера если нет в кэше
+            fetch(`${API_URL}/api/users/${otherUser.id}/status`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                userStatuses[otherUser.id] = data;
+                updateChatHeaderStatus(data.isOnline, data.lastSeen);
+            })
+            .catch(err => console.error('Failed to fetch user status:', err));
+        }
+    }
+
     // Join socket room
     socket.emit('join_chat', { chatId: chat.id });
 
@@ -359,6 +435,11 @@ async function loadMessages(chatId) {
 }
 
 function displayMessage(msg) {
+    // Проверяем, не скрыто ли это сообщение для текущего пользователя
+    if (hiddenMessages.has(msg.id)) {
+        return; // Не отображаем скрытое сообщение
+    }
+
     const div = document.createElement('div');
     // Приводим ID к числу для корректного сравнения
     const messageUserId = parseInt(msg.userId || msg.user_id);
@@ -549,14 +630,22 @@ function copyMessage(msg) {
 }
 
 async function deleteMessage(msg, forAll) {
-    if (!confirm(forAll ? 'Удалить сообщение у всех?' : 'Удалить сообщение?')) {
+    if (!confirm(forAll ? 'Удалить сообщение у всех?' : 'Удалить сообщение только у себя?')) {
         return;
     }
 
-    socket.emit('delete_message_all', {
-        messageId: msg.id,
-        chatId: currentChatId
-    });
+    if (forAll) {
+        socket.emit('delete_message_all', {
+            messageId: msg.id,
+            chatId: currentChatId
+        });
+    } else {
+        // Удаление только для себя - просто скрываем локально
+        socket.emit('delete_message_me', {
+            messageId: msg.id,
+            chatId: currentChatId
+        });
+    }
 }
 
 function replyMessage(msg) {
@@ -871,6 +960,8 @@ async function createGroupChat() {
 }
 
 // ============= CALLS =============
+let currentCallIsVideo = false; // Флаг типа текущего звонка
+
 async function initiateCall(isVideo) {
     if (!currentChatData || currentChatData.is_group) {
         alert('Звонки доступны только в личных чатах');
@@ -881,6 +972,7 @@ async function initiateCall(isVideo) {
     if (!otherUser) return;
 
     currentCallUser = otherUser.id;
+    currentCallIsVideo = isVideo;
     callerName.textContent = otherUser.username;
     callStatus.textContent = 'Вызов...';
     isCallInitiator = true;
@@ -889,13 +981,18 @@ async function initiateCall(isVideo) {
     incomingCallActions.style.display = 'none';
     document.querySelector('.call-controls').style.display = 'flex';
 
+    // Скрываем/показываем кнопку камеры в зависимости от типа звонка
+    cameraBtn.style.display = isVideo ? 'inline-flex' : 'none';
+
     // НЕ играем рингтон у звонящего! Только у принимающего
 
     try {
-        localStream = await navigator.mediaDevices.getUserMedia({
+        const constraints = {
             audio: true,
             video: isVideo
-        });
+        };
+
+        localStream = await navigator.mediaDevices.getUserMedia(constraints);
 
         localVideo.srcObject = localStream;
         localVideo.style.display = isVideo ? 'block' : 'none';
@@ -942,7 +1039,8 @@ async function initiateCall(isVideo) {
 
         socket.emit('call_initiate', {
             targetUserId: currentCallUser,
-            offer: offer
+            offer: offer,
+            isVideo: isVideo
         });
 
     } catch (error) {
@@ -958,13 +1056,19 @@ async function acceptCall() {
     document.querySelector('.call-controls').style.display = 'flex';
     callStatus.textContent = 'Соединение...';
 
+    // Скрываем/показываем кнопку камеры в зависимости от типа звонка
+    cameraBtn.style.display = currentCallIsVideo ? 'inline-flex' : 'none';
+
     try {
-        localStream = await navigator.mediaDevices.getUserMedia({
+        const constraints = {
             audio: true,
-            video: true
-        });
+            video: currentCallIsVideo
+        };
+
+        localStream = await navigator.mediaDevices.getUserMedia(constraints);
 
         localVideo.srcObject = localStream;
+        localVideo.style.display = currentCallIsVideo ? 'block' : 'none';
 
         peerConnection = new RTCPeerConnection(rtcConfiguration);
 
@@ -1109,6 +1213,46 @@ function formatTime(timestamp) {
         return `${days[date.getDay()]} ${hours}:${minutes}`;
     } else {
         return `${date.getDate()}.${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+    }
+}
+
+function formatLastSeen(lastSeenDate) {
+    const date = new Date(lastSeenDate);
+    const now = new Date();
+
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const time = `${hours}:${minutes}`;
+
+    if (dateOnly.getTime() === today.getTime()) {
+        return `был(а) в сети сегодня в ${time}`;
+    } else if (dateOnly.getTime() === yesterday.getTime()) {
+        return `был(а) в сети вчера в ${time}`;
+    } else {
+        const day = date.getDate();
+        const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+                       'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+        const month = months[date.getMonth()];
+        return `был(а) в сети ${day} ${month} в ${time}`;
+    }
+}
+
+function updateChatHeaderStatus(isOnline, lastSeen) {
+    if (isOnline) {
+        typingIndicator.textContent = 'в сети';
+        typingIndicator.style.display = 'block';
+        typingIndicator.style.color = 'var(--success-color)';
+    } else if (lastSeen) {
+        typingIndicator.textContent = formatLastSeen(lastSeen);
+        typingIndicator.style.display = 'block';
+        typingIndicator.style.color = 'var(--text-secondary)';
+    } else {
+        typingIndicator.style.display = 'none';
     }
 }
 
