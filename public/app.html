@@ -9,38 +9,44 @@
 </head>
 <body class="app-page">
     <div class="app-container">
-        <!-- Sidebar -->
+        <!-- Sidebar - iOS Messages Style -->
         <div class="sidebar">
             <div class="sidebar-header">
-                <div class="user-profile">
-                    <div class="avatar">
-                        <i class="fas fa-user"></i>
-                        <span class="status-indicator online"></span>
-                    </div>
-                    <div class="user-info">
-                        <h3 id="currentUsername">Username</h3>
-                        <p class="status-text">В сети</p>
+                <!-- Large Title Header - iOS Style -->
+                <div class="large-title-header">
+                    <h1>Сообщения</h1>
+                    <div class="header-toolbar">
+                        <div class="user-profile">
+                            <div class="avatar">
+                                <i class="fas fa-user"></i>
+                                <span class="status-indicator online"></span>
+                            </div>
+                            <div class="user-info">
+                                <h3 id="currentUsername">Username</h3>
+                                <p class="status-text">В сети</p>
+                            </div>
+                        </div>
+                        <div class="header-actions">
+                            <button class="icon-btn" id="createChatBtn" title="Новый чат">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="icon-btn" id="profileBtn" title="Профиль">
+                                <i class="fas fa-user-circle"></i>
+                            </button>
+                            <button class="icon-btn" id="logoutBtn" title="Выйти">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="header-actions">
-                    <button class="icon-btn" id="createChatBtn" title="Новый чат">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="icon-btn" id="settingsBtn" title="Настройки">
-                        <i class="fas fa-cog"></i>
-                    </button>
-                    <button class="icon-btn" id="profileBtn" title="Профиль">
-                        <i class="fas fa-user-circle"></i>
-                    </button>
-                    <button class="icon-btn" id="logoutBtn" title="Выйти">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
-                </div>
-            </div>
 
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchChats" placeholder="Поиск чатов...">
+                <!-- Search Bar - iOS Style -->
+                <div class="search-box">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchChats" placeholder="Поиск">
+                    </div>
+                </div>
             </div>
 
             <div class="chats-list" id="chatsList">
@@ -65,7 +71,14 @@
                         </div>
                         <div>
                             <h3 id="chatName">Chat Name</h3>
-                            <p class="typing-indicator" id="typingIndicator"></p>
+                            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                                <span class="typing-dots">
+                                    <span class="typing-dot"></span>
+                                    <span class="typing-dot"></span>
+                                    <span class="typing-dot"></span>
+                                </span>
+                                печатает...
+                            </div>
                         </div>
                     </div>
                     <div class="chat-actions">
